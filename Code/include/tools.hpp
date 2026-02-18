@@ -1,6 +1,6 @@
 #pragma once
 
-typedef unsigned int uint;
+using uint = unsigned int;
 
 template <typename T>
 inline T max(T a, T b)
@@ -16,10 +16,10 @@ inline T min(T a, T b)
 
 enum E_DRAW_MODE
 {
-    POINT,
-    TRIANGLE,
-    LINE,
-    FORM
+    point,
+    triangle,
+    line,
+    form
 };
 
 template <class T>

@@ -12,11 +12,11 @@ public:
             T y;
         };
 
-        T e[2];
+        T array[2];
     };
 
     Vec2() = default;
-    Vec2(T, T);
+    Vec2(T /*_x*/, T /*_y*/);
 
     T GetMagnitude() const;
     void Normalize();
@@ -29,7 +29,7 @@ public:
 #define Vec2b Vec2<bool>
 
 template <typename T>
-inline Vec2<T>::Vec2(T _x, T _y) : x{_x}, y{_y}
+inline Vec2<T>::Vec2(T x, T y) : x{x}, y{y}
 {
 }
 
@@ -45,7 +45,9 @@ inline void Vec2<T>::Normalize()
     float mag = GetMagnitude();
 
     if (mag == 0)
+    {
         return;
+    }
 
     x /= mag;
     y /= mag;

@@ -1,18 +1,34 @@
-#include "Texture.hpp"
+#include "texture.hpp"
+
+#include <sys/types.h>
+
+#include "color.hpp"
+#include "vec2.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 
-Texture::Texture() : _width{0}, _height{0}, _texture{nullptr} {}
 
-Texture::~Texture() { delete[] _texture; }
+Texture::~Texture()
+{
+    delete[] m_texture;
+}
 
-Vec2<uint> Texture::GetSize() { return {_width, _height}; }
+Vec2<uint> Texture::GetSize() const
+{
+    return {m_width, m_height};
+}
 
-uint Texture::GetWidth() const { return _width; }
+uint Texture::GetWidth() const
+{
+    return m_width;
+}
 
-uint Texture::GetHeight() const { return _height; }
+uint Texture::GetHeight() const
+{
+    return m_height;
+}
 
-bool Texture::Load_PNG(const char* filename)
+bool Texture::Load_PNG(const char* /*filename*/)
 {
     // stbi_set_flip_vertically_on_load(true);
     // int channels;
@@ -26,12 +42,18 @@ bool Texture::Load_PNG(const char* filename)
     // memcpy(texture, _texture, width * height * sizeof(Color));
 
     // stbi_image_free(_texture);
-    return _texture != nullptr;
+    return m_texture != nullptr;
 }
 
-inline Color* Texture::GetTexture() const { return _texture; }
+inline Color* Texture::GetTexture() const
+{
+    return m_texture;
+}
 
-bool Texture::IsEmpty() const { return _texture == nullptr; }
+bool Texture::IsEmpty() const
+{
+    return m_texture == nullptr;
+}
 
 Color Texture::Accessor(float v, float u) const
 {
@@ -43,8 +65,8 @@ Color Texture::Accessor(float v, float u) const
     }
 
     // wtf ?
-    v *= _width;
-    u *= _height;
+    v *= m_width;
+    u *= m_height;
 
-    return this->_texture[(int)v + (int)u * _width];
+    return m_texture[(int) v + ((int) u * m_width)];
 }

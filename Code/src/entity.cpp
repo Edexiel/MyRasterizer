@@ -1,20 +1,21 @@
-#include "Entity.hpp"
+#include "entity.hpp"
 
-Entity::Entity() : _drawMode{TRIANGLE},
-                   _position{Vec3::Zero()},
-                   _rotation{0.f, 0.f, 0.f},
-                   _scale{1.f, 1.f, 1.f},
-                   _mesh{nullptr},
-                   _transform{Mat4::Identity()}
+#include <memory>
+
+#include "mat4.hpp"
+#include "mesh.hpp"
+#include "tools.hpp"
+#include "vec3.hpp"
+
+Entity::Entity()
+    : m_draw_mode{E_DRAW_MODE::triangle}, m_position{Vec3::Zero()}, m_rotation{0.F, 0.F, 0.F}, m_scale{1.F, 1.F, 1.F}, m_mesh{nullptr},
+      m_transform{Mat4::Identity()}
 {
 }
 
-Entity::Entity(const std::shared_ptr<Mesh>& Mesh) : _drawMode{TRIANGLE},
-                             _position{0.f, 0.f, 0.f},
-                             _rotation{0.f, 0.f, 0.f},
-                             _scale{1.f, 1.f, 1.f},
-                             _mesh{std::move(Mesh)},
-                             _transform{Mat4::Identity()}
+Entity::Entity(const std::shared_ptr<Mesh>& mesh)
+    : m_draw_mode{E_DRAW_MODE::triangle}, m_position{0.F, 0.F, 0.F}, m_rotation{0.F, 0.F, 0.F}, m_scale{1.F, 1.F, 1.F}, m_mesh{mesh},
+      m_transform{Mat4::Identity()}
 {
 }
 
@@ -26,7 +27,6 @@ Entity::Entity(const std::shared_ptr<Mesh>& Mesh) : _drawMode{TRIANGLE},
 // {
 //
 // }
-
 
 // Entity::Entity(const Entity& other) : _drawMode(other._drawMode),_position(other._position),_rotation(other._rotation),_scale(other._scale),_mesh(other._mesh)
 // {
@@ -43,18 +43,17 @@ Entity::Entity(const std::shared_ptr<Mesh>& Mesh) : _drawMode{TRIANGLE},
 
 void Entity::Update(const double deltaTime)
 {
-    (void)deltaTime;
+    (void) deltaTime;
 }
 
 void Entity::Transform()
 {
-    _transform = Mat4::CreateTransformMatrix(_position, _rotation, _scale);
+    m_transform = Mat4::CreateTransformMatrix(m_position, m_rotation, m_scale);
 }
-
 
 void Entity::ResetTransformation()
 {
-    _transform = Mat4::Identity();
+    m_transform = Mat4::Identity();
     // memset(&_transform, 0, 16 * sizeof(float));
     // _transform.a[0] = 1.f;
     // _transform.a[5] = 1.f;
@@ -62,56 +61,62 @@ void Entity::ResetTransformation()
     // _transform.a[15] = 1.f;
 }
 
-void Entity::SetDrawMode(E_DRAW_MODE draw_mode) { _drawMode = draw_mode; }
+void Entity::SetDrawMode(E_DRAW_MODE drawMode)
+{
+    m_draw_mode = drawMode;
+}
 
-E_DRAW_MODE Entity::GetDrawMode() const { return _drawMode; }
+E_DRAW_MODE Entity::GetDrawMode() const
+{
+    return m_draw_mode;
+}
 
 const Vec3& Entity::GetPosition() const
 {
-    return _position;
+    return m_position;
 }
 
 void Entity::SetPosition(const Vec3& position)
 {
-    _position = position;
+    m_position = position;
 }
 
 const Vec3& Entity::GetRotation() const
 {
-    return _rotation;
+    return m_rotation;
 }
 
 void Entity::SetRotation(const Vec3& rotation)
 {
-    _rotation = rotation;
+    m_rotation = rotation;
 }
 
 const Vec3& Entity::GetScale() const
 {
-    return _scale;
+    return m_scale;
 }
 
 void Entity::SetScale(const Vec3& scale)
 {
-    _scale = scale;
+    m_scale = scale;
 }
 
 const std::shared_ptr<Mesh>& Entity::GetMesh() const
 {
-    return _mesh;
+    return m_mesh;
 }
 
 void Entity::SetMesh(const std::shared_ptr<Mesh>& mesh)
 {
-    _mesh = std::move(mesh);
+    m_mesh = mesh;
 }
 
 const Mat4& Entity::GetTransform() const
 {
-    return _transform;
+    return m_transform;
 }
 
 void Entity::SetTransform(const Mat4& transform)
 {
-    _transform = transform;
+    m_transform = transform;
 }

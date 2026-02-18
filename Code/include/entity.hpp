@@ -2,28 +2,23 @@
 
 #include <memory>
 
-#include "Mat4.hpp"
-#include "Mesh.hpp"
-#include "Tools.hpp"
-#include "Vec3.hpp"
+#include "mat4.hpp"
+#include "mesh.hpp"
+#include "tools.hpp"
+#include "vec3.hpp"
 
 class Entity
 {
 public:
     Entity();
-    explicit Entity(const std::shared_ptr<Mesh>& Mesh);
-    // Entity(Entity& other);
-    // Entity(const Entity& other);
-    // Entity(Entity&& other) noexcept = default;
-    // Entity& operator=(const Entity& other) = default;
-    // Entity& operator=(Entity&& other) noexcept = default;
+    explicit Entity(const std::shared_ptr<Mesh>& mesh);
 
-    void Update(double deltaTime);
+    static void Update(double deltaTime);
     void Transform();
 
     void ResetTransformation();
 
-    void SetDrawMode(E_DRAW_MODE draw_mode);
+    void SetDrawMode(E_DRAW_MODE drawMode);
     E_DRAW_MODE GetDrawMode() const;
 
     const Vec3& GetPosition() const;
@@ -42,11 +37,11 @@ public:
     void SetTransform(const Mat4& transform);
 
 private:
-    E_DRAW_MODE _drawMode;
-    Vec3 _position{};
-    Vec3 _rotation{};
-    Vec3 _scale{};
+    E_DRAW_MODE m_draw_mode;
+    Vec3 m_position;
+    Vec3 m_rotation;
+    Vec3 m_scale;
 
-    std::shared_ptr<Mesh> _mesh;
-    Mat4 _transform{};
+    std::shared_ptr<Mesh> m_mesh;
+    Mat4 m_transform;
 };

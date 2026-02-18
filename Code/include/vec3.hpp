@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cmath>
-#include <iostream>
 
 class Vec3
 {
@@ -11,12 +10,7 @@ public:
     float z = 0.f;
 
     Vec3() = default;
-    Vec3(float, float, float);
-    // Vec3(Vec3&) = default;
-    // Vec3(const Vec3&) = default;
-    //
-    // Vec3& operator=(const Vec3& other) = default;
-    // Vec3& operator=(Vec3&& other) noexcept = default;
+    Vec3(float x, float y, float z);
 
     static Vec3 Normalize(const Vec3& v);
 
@@ -40,7 +34,7 @@ public:
     static float DotProduct(const Vec3& v1, const Vec3& v2);
 };
 
-inline Vec3::Vec3(const float _x, const float _y, const float _z) : x{_x}, y{_y}, z{_z}
+inline Vec3::Vec3(float x, float y, float z) : x{x}, y{y}, z{z}
 {
 }
 
@@ -71,7 +65,7 @@ inline void Vec3::Normalize()
 
 inline float Vec3::GetMagnitude() const
 {
-    return sqrtf(x * x + y * y + z * z);
+    return sqrtf((x * x) + (y * y) + (z * z));
 }
 
 inline Vec3 Vec3::operator+(const Vec3& other) const
@@ -91,12 +85,16 @@ inline Vec3 Vec3::operator*(float other) const
 
 inline float Vec3::CrossProductZ(const Vec3& v1, const Vec3& v2)
 {
-    return v1.x * v2.y - v2.x * v1.y;
+    return (v1.x * v2.y) - (v2.x * v1.y);
 }
 
 inline Vec3 Vec3::CrossProduct(const Vec3& v1, const Vec3& v2)
 {
-    return {(v1.y * v2.z) - (v1.z * v2.y), (v1.z * v2.x) - (v1.x * v2.z), (v1.x * v2.y) - (v1.y * v2.x)};
+    return {(v1.y * v2.z) - (v1.z * v2.y),
+            (v1.z * v2.x) - (v1.x * v2.z),
+            (v1.x * v2.y) - (v1.y * v2.x)};
 }
 
-inline float Vec3::DotProduct(const Vec3& v1, const Vec3& v2) { return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z; }
+inline float Vec3::DotProduct(const Vec3& v1, const Vec3& v2) {
+    return (v1.x * v2.x) + (v1.y * v2.y) + (v1.z * v2.z);
+}

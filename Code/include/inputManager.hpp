@@ -1,22 +1,18 @@
 #pragma once
 
 #include <map>
-#include "Vec2.hpp"
+#include "vec2.hpp"
 
 // key to be watched and mouse
-struct input
+struct Input
 {
-    Vec2b mouse_keys;
-    Vec2d mouse;
-    std::map<int, bool> keys;
+    Vec2b m_mouse_keys{};
+    Vec2d m_mouse{};
+    std::map<int, bool> m_keys;
 };
 
 class InputManager
 {
-private:
-    input current_input;
-    input old_input;
-
 public:
     InputManager();
 
@@ -28,4 +24,7 @@ public:
     Vec2d GetMousePosition() const;
     Vec2d GetMouseOldPosition() const;
     Vec2d GetMouseMovement() const;
+private:
+    Input m_current_input;
+    Input m_old_input;
 };

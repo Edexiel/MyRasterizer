@@ -1,12 +1,18 @@
 #include "window.h"
+
+#include <SDL.h>
+#include <SDL_error.h>
+#include <SDL_events.h>
+#include <SDL_rect.h>
+#include <SDL_surface.h>
+#include <SDL_video.h>
 #include <iostream>
+#include <string>
 
-Pixel::Pixel(int _x, int _y) : x(_x), y(_y) {}
-
-bool Window::Init(const std::string& title, unsigned int _width, unsigned int _height)
+bool Window::Init(const std::string& title, unsigned int width, unsigned int height)
 {
-    width = _width;
-    height = _height;
+    m_width = width;
+    m_height = height;
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
@@ -14,80 +20,86 @@ bool Window::Init(const std::string& title, unsigned int _width, unsigned int _h
         return false;
     }
 
-    window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height,
-                              SDL_WINDOW_SHOWN);
+    m_window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, m_width, m_height, SDL_WINDOW_SHOWN);
 
-    if (window == nullptr)
+    if (m_window == nullptr)
     {
         PrintError("Window creation failed.");
         Destroy();
         return false;
     }
 
-    screenSurface = SDL_GetWindowSurface(window);
-
-    //
-    // renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    // if (renderer == nullptr)
-    // {
-    //     PrintError("Renderer creation failed.");
-    //     Destroy();
-    //     return false;
-    // }
 
     return true;
 }
 
 void Window::Destroy()
 {
-    if (window)
+    if (m_window)
     {
-        SDL_DestroyWindow(window);
+        SDL_DestroyWindow(m_window);
     }
 
     SDL_Quit();
 }
 
-// void Window::BeginDrawing()
-// {
-//     UpdateInputs();
-// }
-//
-// void Window::EndDrawing()
-// {
-//     SDL_RenderPresent(renderer);
-// }
-
-//
-// void Window::DrawPixel(const Pixel& pixel, const Color& color)
-// {
-//     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 0);
-//     SDL_RenderDrawPoint(renderer, pixel.x, pixel.y);
-// }
-
-bool Window::ShouldClose() const { return shouldClose; }
-
-void Window::SwapBuffers(SDL_Surface* buffer)
+bool Window::ShouldClose() const
 {
-    SDL_Rect rect{0, 0, (int)width, (int)height};
-    SDL_BlitSurface(buffer, &rect, SDL_GetWindowSurface(window), &rect);
+    return m_should_close;
+}
 
-    SDL_UpdateWindowSurface(window);
+void Window::SwapBuffers(SDL_Surface* buffer) const
+{
+    SDL_Rect rect{0, 0, (int) m_width, (int) m_height};
+    SDL_BlitSurface(buffer, &rect, SDL_GetWindowSurface(m_window), &rect);
+
+    SDL_UpdateWindowSurface(m_window);
+}
+
+void Window::ResizeWindow(unsigned int width, unsigned int height)
+{
+    if (m_width == width && m_height == height)
+    {
+        return;
+    }
+
+    m_width = width;
+    m_height = height;
+
+    if (m_draw_surface)
+        SDL_FreeSurface(m_draw_surface);
+}
+
+void Window::GetWindowSize(unsigned int& width, unsigned int& height) const
+{
+    width = m_width;
+    height = m_height;
 }
 
 void Window::PrintError(const std::string& message)
 {
-    std::cout << message << " SDL_Error: " << SDL_GetError() << std::endl;
+    std::cout << message << " SDL_Error: " << SDL_GetError() << '\n';
 }
 
 void Window::UpdateInputs()
 {
-    SDL_PollEvent(&events);
+    SDL_Event event;
 
-    switch (events.type)
+    while (SDL_PollEvent(&event))
     {
-    case SDL_QUIT:
-        shouldClose = true;
-        break;
+        switch (event.type)
+        {
+            case SDL_QUIT:
+                m_should_close = true;
+                break;
+            case SDL_WINDOWEVENT:
+                switch (event.window.event)
+                {
+                    case SDL_WINDOWEVENT_RESIZED:
+                        ResizeWindow(event.window.data1,event.window.data2);
+                        break;
+                }
+                break;
+        }
     }
 }

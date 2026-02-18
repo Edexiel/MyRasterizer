@@ -1,21 +1,17 @@
 #pragma once
 
-#include "Color.hpp"
-#include "Vec2.hpp"
+#include <sys/types.h>
+
+#include "color.hpp"
+#include "vec2.hpp"
 
 class Texture
 {
-private:
-    uint _width;
-    uint _height;
-
-    Color* _texture;
-
 public:
-    Texture();
+    Texture() = default;
     ~Texture();
 
-    Vec2<uint> GetSize();
+    Vec2<uint> GetSize() const;
 
     uint GetWidth() const;
     uint GetHeight() const;
@@ -27,4 +23,10 @@ public:
     Color Accessor(float v, float u) const;
 
     bool Load_PNG(const char* filename);
+
+private:
+    uint m_width{0};
+    uint m_height{0};
+
+    Color* m_texture = nullptr;
 };

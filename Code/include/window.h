@@ -1,41 +1,28 @@
 #pragma once
 
-#include <SDL2/SDL.h>
+#include <SDL_surface.h>
+#include <SDL_video.h>
 #include <string>
-
-#include "Color.hpp"
-
-struct Pixel
-{
-	int x = 0;
-	int y = 0;
-
-	Pixel(int x, int y);
-};
 
 class Window
 {
-private:
-	unsigned int width = 0;
-	unsigned int height = 0;
-	bool shouldClose = false;
-
-	SDL_Window* window = nullptr;
-	SDL_Surface* screenSurface = nullptr;
-
-	SDL_Event events{};
-
-	static void PrintError(const std::string& message);
-
 public:
-	bool Init(const std::string& title, unsigned int width, unsigned int height);
-	void Destroy();
-	void UpdateInputs();
-	// void BeginDrawing();
-	// void EndDrawing();
-	// void ClearBackground(const Color& color);
-	// void DrawPixel(const Pixel& pixel, const Color& color);
+    bool Init(const std::string& title, unsigned int width, unsigned int height);
+    void Destroy();
+    void UpdateInputs();
 
-	bool ShouldClose() const;
-	void SwapBuffers(SDL_Surface* buffer);
+    bool ShouldClose() const;
+    void SwapBuffers(SDL_Surface* buffer) const;
+    void ResizeWindow(unsigned int width, unsigned int height);
+    void GetWindowSize(unsigned int& width, unsigned int& height) const;
+
+private:
+    SDL_Surface* m_color_buffer = nullptr;
+    unsigned int m_width = 0;
+    unsigned int m_height = 0;
+    bool m_should_close = false;
+
+    SDL_Window* m_window = nullptr;
+    SDL_Surface* m_draw_surface = nullptr;
+    static void PrintError(const std::string& message);
 };

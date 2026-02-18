@@ -1,38 +1,30 @@
-#include "Rasterizer.hpp"
+#include <cstdlib>
+#include <iostream>
+#include <timer.hpp>
+
+#include "camera.hpp"
+#include "inputManager.hpp"
+#include "rasterizer.hpp"
+#include "scene.hpp"
+#include "vec3.hpp"
 #include "window.h"
 
-#include "Camera.hpp"
-#include "InputManager.hpp"
-#include <Timer.hpp>
+constexpr int screenWidth = 1280;
+constexpr int screenHeight =  720;
 
-#include <iostream>
-
-#include <SDL.h>
-
-#define SCREEN_WIDTH 1280
-#define SCREEN_HEIGHT 720
-
-int main(int argc, char** argv)
+int main(int /*argc*/, char** /*argv*/)
 {
     Window window;
-    if (!window.Init("Rasterizer", SCREEN_WIDTH, SCREEN_HEIGHT))
+    if (!window.Init("Rasterizer", screenWidth, screenHeight))
     {
         return EXIT_FAILURE;
     }
-    //
-    // // Time && fps
-    // double time = 0.f;
-    // double deltaTime = 0.01;
-    // const float sample = 1.f; // moyenne de fps sur sample seconde(s)
-    // uint frames = 0;
-    // double time_acc = 0.f;
-    // std::string fps;
 
     InputManager inputManager;
-    Camera camera{inputManager, Vec3::Zero(),Vec3::Zero(), 0.f, 0.f, 0.5f, 1.f};
+    Camera camera{inputManager, Vec3::Zero(), Vec3::Zero(), 0.f, 0.f, 0.5f, 1.f};
     Scene scene{inputManager, camera};
 
-    Rasterizer rasterizer{SCREEN_WIDTH, SCREEN_HEIGHT};
+    Rasterizer rasterizer{screenWidth, screenHeight};
 
     // Keeps track of time between steps
 
@@ -41,32 +33,28 @@ int main(int argc, char** argv)
 
     applicationTimer.Start();
 
-    std::string fps;
-
-    float time_acc = 0.f;
-    float sample_time = 1.f;
+    // config timer
+    float timeAcc = 0.f;
+    constexpr float sampleTime = 1.f;
     int frames = 0;
 
     while (!window.ShouldClose())
     {
-        const float timeStep = stepTimer.GetTicks() / 1000.f;
+        const float timeStep = (float)stepTimer.GetTicks() / 1000.f;
 
         // Compute FPS
         {
-            time_acc += timeStep;
+            timeAcc += timeStep;
             frames++;
-            if (time_acc >= sample_time)
+            if (timeAcc >= sampleTime)
             {
-                std::cout << "FPS: " << 1.f / (time_acc / frames) << std::endl;
+                std::cout << "FPS: " << 1.f / (timeAcc / (float)frames) << '\n';
                 frames = 0;
-                time_acc = 0;
+                timeAcc = 0;
             }
         }
 
-        // window.DrawPixel(Pixel(10, 10), Color{0, 0, 0});
-
         // poll events
-
 
         // Updates
         window.UpdateInputs();
