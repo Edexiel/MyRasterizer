@@ -20,7 +20,7 @@ bool Window::Init(const std::string& title, unsigned int width, unsigned int hei
         return false;
     }
 
-    m_window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, m_width, m_height, SDL_WINDOW_SHOWN);
+    m_window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, m_width, m_height, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
     if (m_window == nullptr)
     {
@@ -65,9 +65,6 @@ void Window::ResizeWindow(unsigned int width, unsigned int height)
 
     m_width = width;
     m_height = height;
-
-    if (m_draw_surface)
-        SDL_FreeSurface(m_draw_surface);
 }
 
 void Window::GetWindowSize(unsigned int& width, unsigned int& height) const

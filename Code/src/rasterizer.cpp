@@ -37,7 +37,7 @@ Rasterizer::Rasterizer(uint width, uint height)
 
     const float aspect = (float) width / (float) height;
 
-    viewport = Mat4::ViewportMatrix(0.F, 0.f, (float) width, (float) height);
+    viewport = Mat4::ViewportMatrix(0.f, 0.f, (float) width, (float) height);
 #if 1 // Perspective or 2D
     projection = Mat4::Perspective(60.f, aspect, 0.01f, 50.f);
 #elif

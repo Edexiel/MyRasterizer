@@ -64,7 +64,6 @@ Color Texture::Accessor(float v, float u) const
         return {255, 0, 0};
     }
 
-    // wtf ?
     v *= m_width;
     u *= m_height;
 

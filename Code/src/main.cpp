@@ -26,8 +26,6 @@ int main(int /*argc*/, char** /*argv*/)
 
     Rasterizer rasterizer{screenWidth, screenHeight};
 
-    // Keeps track of time between steps
-
     Timer applicationTimer;
     Timer stepTimer;
 

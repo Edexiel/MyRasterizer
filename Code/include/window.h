@@ -23,6 +23,5 @@ private:
     bool m_should_close = false;
 
     SDL_Window* m_window = nullptr;
-    SDL_Surface* m_draw_surface = nullptr;
     static void PrintError(const std::string& message);
 };

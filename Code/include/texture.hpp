@@ -22,6 +22,9 @@ public:
 
     Color Accessor(float v, float u) const;
 
+    Color operator [] (int index) const {return m_texture[index];}
+    Color& operator [] (int index) {return m_texture[index];}
+
     bool Load_PNG(const char* filename);
 
 private:

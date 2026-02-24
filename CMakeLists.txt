@@ -6,13 +6,6 @@ project(Rasterizer VERSION 0.1 LANGUAGES C CXX)
 # Specify the C++ standard
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-#set(CMAKE_CXX_CLANG_TIDY
-#        clang-tidy;
-#        -p=${CMAKE_BINARY_DIR};
-#        --extra-arg=-std=c++20
-#)
-set(CMAKE_CXX_CLANG_FORMAT clang-format)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Find SDL2
 find_package(SDL2 REQUIRED)
