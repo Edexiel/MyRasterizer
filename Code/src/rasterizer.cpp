@@ -35,14 +35,16 @@ Rasterizer::Rasterizer(uint width, uint height)
     ClearColorBuffer();
     ClearDepthBuffer();
 
-    const float aspect = (float) width / (float) height;
+    const float aspect = static_cast<float>(width) / static_cast<float>(height);
 
     viewport = Mat4::ViewportMatrix(0.f, 0.f, (float) width, (float) height);
 #if 1 // Perspective or 2D
     projection = Mat4::Perspective(60.f, aspect, 0.01f, 50.f);
-#elif
-    projection = Mat4::orthoMatrix(-aspect, aspect, -1.f, 1.f, 0.f, 100.f);
+#else
+    projection = Mat4::OrthoMatrix(-aspect, aspect, -1.f, 1.f, 0.f, 100.f);
 #endif
+
+    view = Mat4::Identity();
 }
 
 Rasterizer::~Rasterizer()
@@ -61,24 +63,13 @@ void Rasterizer::RenderScene(Scene& scene)
     ClearColorBuffer();
     ClearDepthBuffer();
 
-    // Vertex vertices[2]{Vertex{{0,0,0},Color{255, 255, 255}},Vertex{{1,1,1},Color{255, 255, 255}}};
-    // DrawLine(vertices,view);
-
-    // update camera matrix before transforming object
-    // view = scene.GetCamera().GetCameraMatrix();
-
-    view = Mat4::Identity();
+    std::array<Vertex,2> vertices{Vertex{{1,1,1},Color{255, 0, 0}},Vertex{{256,256,257},Color{255, 0, 0}}};
+    DrawLine(vertices,viewport);
 
     for (Entity& entity : scene.m_entities)
     {
         switch (entity.GetDrawMode())
         {
-            // case POINT:
-            // {
-            //     for (uint i = 0; i < entity.mesh->vertices.size(); i++)
-            //         DrawPoint(entity.mesh->vertices[i], entity.transform);
-            //     break;
-            // }
             case triangle: {
                 if (entity.GetMesh()->indices.size() < 3)
                 {
@@ -268,13 +259,6 @@ inline void Rasterizer::RasterTriangle(const std::array<Vertex, 3>& vertices,
 
                 const Vec3 tNormal{hn0 * weight.x + hn1 * weight.y + hn2 * weight.z};
 
-#if 1 // Cheap wireframe
-                if (min(min(weight.x, weight.y), weight.z) < 0.016f)
-                {
-                    SetPixelColor(x, y, z, {(unsigned char) (255), (unsigned char) (255), (unsigned char) (255)});
-                }
-#endif
-
                 Color tColor{};
                 if (texture == nullptr || uv == nullptr)
                 {
@@ -289,6 +273,13 @@ inline void Rasterizer::RasterTriangle(const std::array<Vertex, 3>& vertices,
 
                 // light.apply_light(t_pos, t_normal, t_color);
                 SetPixelColor(x, y, z, tColor);
+
+#if 0 // Cheap wireframe
+                if (min(min(weight.x, weight.y), weight.z) < 0.016f)
+                {
+                    SetPixelColor(x, y, z, {(unsigned char) (255), (unsigned char) (255), (unsigned char) (255)});
+                }
+#endif
             }
         }
     }
@@ -310,19 +301,19 @@ inline void Rasterizer::DrawLine(const std::array<Vertex, 2>& vertices, const Ma
     }
 
     std::array<Vec4, 3> clipCoord;
-    for (short i = 0; i < 2; i++)
+    for (int i = 0; i < 2; i++)
     {
         clipCoord[i] = projection * transCoord[i];
     }
 
     // clipping
-    // if ((clipCoord[0].x < -clipCoord[0].w || clipCoord[0].x > clipCoord[0].w || clipCoord[0].y < -clipCoord[0].w ||
-    //         clipCoord[0].y > clipCoord[0].w || clipCoord[0].z < -clipCoord[0].w || clipCoord[0].z > clipCoord[0].w) &&
-    //     (clipCoord[1].x < -clipCoord[1].w || clipCoord[1].x > clipCoord[1].w || clipCoord[1].y < -clipCoord[1].w ||
-    //         clipCoord[1].y > clipCoord[1].w || clipCoord[1].z < -clipCoord[1].w || clipCoord[1].z > clipCoord[1].w))
-    // {
-    //     return;
-    // }
+    if ((clipCoord[0].x < -clipCoord[0].w || clipCoord[0].x > clipCoord[0].w || clipCoord[0].y < -clipCoord[0].w ||
+            clipCoord[0].y > clipCoord[0].w || clipCoord[0].z < -clipCoord[0].w || clipCoord[0].z > clipCoord[0].w) &&
+        (clipCoord[1].x < -clipCoord[1].w || clipCoord[1].x > clipCoord[1].w || clipCoord[1].y < -clipCoord[1].w ||
+            clipCoord[1].y > clipCoord[1].w || clipCoord[1].z < -clipCoord[1].w || clipCoord[1].z > clipCoord[1].w))
+    {
+        return;
+    }
 
     Vec3 ndc[2];
     for (int i = 0; i < 2; i++)
@@ -330,13 +321,13 @@ inline void Rasterizer::DrawLine(const std::array<Vertex, 2>& vertices, const Ma
         ndc[i] = Vec4::Homogenize(clipCoord[i]);
     }
 
-    // back face culling
-    if (Vec3::CrossProductZ(ndc[1], ndc[0]) <= 0.f)
-    {
-        return;
-    }
+    // // back face culling
+    // if (Vec3::CrossProductZ(ndc[1], ndc[0]) <= 0.f)
+    // {
+    //     return;
+    // }
 
-    Vertex screenCoord[2];
+    std::array<Vertex,2> screenCoord;
     for (int i = 0; i < 2; i++)
     {
         screenCoord[i] = Vertex{viewport.TransformPoint(ndc[i]), vertices[i].color, vertices[i].normal};
@@ -344,10 +335,10 @@ inline void Rasterizer::DrawLine(const std::array<Vertex, 2>& vertices, const Ma
     RasterLine(screenCoord);
 }
 
-inline void Rasterizer::RasterLine(const Vertex* vertex)
+inline void Rasterizer::RasterLine(const std::array<Vertex, 2>& vertices)const
 {
-    Vertex v1 = vertex[0];
-    Vertex v2 = vertex[1];
+    Vertex v1 = vertices[0];
+    Vertex v2 = vertices[1];
 
     const bool steep = (fabsf(v2.position.y - v1.position.y) > fabsf(v2.position.x - v1.position.x));
 
@@ -368,11 +359,11 @@ inline void Rasterizer::RasterLine(const Vertex* vertex)
 
     float error = dx / 2.0f;
     const int ystep = (v1.position.y < v2.position.y) ? 1 : -1;
-    int y = (int) v1.position.y;
+    int y = static_cast<int>(v1.position.y);
 
-    const int maxX = (int) v2.position.x;
+    const int maxX = static_cast<int>(v2.position.x);
 
-    for (int x = (int) v1.position.x; x < maxX; x++)
+    for (int x = static_cast<int>(v1.position.x); x < maxX; x++)
     {
         if (steep && std::cmp_less_equal(y, m_width) && y >= 0 && std::cmp_less_equal(x, m_height) && x >= 0)
         {

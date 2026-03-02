@@ -23,7 +23,7 @@ public:
     static Mat4 Identity();
     static Mat4 ViewportMatrix(float x, float y, float width, float height);
     static Mat4 OrthoMatrix(float left, float right, float bottom, float top, float near, float far);
-    static Mat4 Perspective(float fovy, float aspectRatio, float front, float back);
+    static Mat4 Perspective(float fovy, float aspectRatio, float near, float far);
     static Mat4 CreateTranslationMatrix(const Vec3& translation);
     static Mat4 CreateScaleMatrix(const Vec3& scale);
     static Mat4 CreateRotationMatrix(const Vec3& rotation);
@@ -31,6 +31,7 @@ public:
     static Mat4 CreateYRotationMatrix(float angle);
     static Mat4 CreateZRotationMatrix(float angle);
     static Mat4 CreateTransformMatrix(const Vec3& position, const Vec3& rotation, const Vec3& scale);
+    static Mat4 Transpose(const Mat4& matrix);
     static Mat4 Zero();
     Vec3 TransformPoint(const Vec3& vector) const;   // w = 1
     Vec3 TransformVector(const Vec3& vector) const; // w = 0`
@@ -74,53 +75,65 @@ inline Mat4 Mat4::ViewportMatrix(float x, float y, float width, float height)
 {
     Mat4 viewport{};
     viewport.values[0] = width / 2;
-    viewport.values[5] = height / 2;
-    viewport.values[10] = 0.5f;
+    viewport.values[5] = -height / 2;
+    viewport.values[10] = 1.f;
     viewport.values[12] = x + (width / 2);
     viewport.values[13] = y + (height / 2);
-    viewport.values[14] = 0.5f;
-    viewport.values[15] = 0;
+    viewport.values[14] = 0.f;
+    viewport.values[15] = 1;
 
     return viewport;
 }
 
 inline Mat4 Mat4::OrthoMatrix(float left, float right, float bottom, float top, float near, float far)
 {
-    Mat4 result{};
-    result.values[0] = 2.f / (right - left);
-    result.values[3] = -((right + left) / (right - left));
-    result.values[5] = 2.f / (top - bottom);
-    result.values[7] = -((top + bottom) / (top - bottom));
-    result.values[10] = -2.f / (far - near);
-    result.values[11] = -((far + near) / (far - near));
-    result.values[15] = 1.f;
+    Mat4 m{};
 
-    return result;
+    const float rl = right - left;
+    const float tb = top - bottom;
+    const float fn = far - near;
+
+    // Scale
+    m.values[0]  = 2.0f / rl;
+    m.values[5]  = 2.0f / tb;
+    m.values[10] = 1.0f / fn;
+
+    // Translation
+    m.values[12] = -(right + left) / rl;
+    m.values[13] = -(top + bottom) / tb;
+    m.values[14] = -near / fn;
+    m.values[15] = 1.0f;
+
+    return m;
 }
-
-inline Mat4 Mat4::Perspective(float fovy, float aspectRatio, float front, float back)
+inline Mat4 Mat4::Perspective(float fovy, float aspectRatio, float near, float far)
 {
-    const float tangent = tanf(fovy * M_PIf / 360.0f); // tangent of half fovY
-    const float top = front * tangent;                 // half height of near plane
-    const float right = top * aspectRatio;             // half width of near plane
+    const float f = 1.0f / tanf(fovy * M_PIf / 360.0f);
 
     Mat4 matrix{};
-    matrix.values[0] = front / right;
-    matrix.values[5] = front / top;
-    matrix.values[10] = -(back + front) / (back - front);
-    matrix.values[11] = -1;
-    matrix.values[14] = -(2 * back * front) / (back - front);
+    matrix.values[0] = f / aspectRatio;
+    matrix.values[5] = f;
+    matrix.values[10] = far / (far - near);
+    matrix.values[11] = 1;
+    matrix.values[14] = -(near * far) / (far - near);
+
     return matrix;
 }
 
 inline Mat4 Mat4::CreateTranslationMatrix(const Vec3& t)
 {
-    return Mat4{{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {t.x, t.y, t.z, 1}};
+    return Mat4{{1, 0, 0, 0},
+                {0, 1, 0, 0},
+                {0, 0, 1, 0},
+                {t.x, t.y, t.z, 1}};
 }
 
 inline Mat4 Mat4::CreateScaleMatrix(const Vec3& scale)
 {
-    return Mat4{{scale.x, 0, 0, 0}, {0, scale.y, 0, 0}, {0, 0, scale.z, 0}, {0, 0, 0, 1}};
+    return Mat4{{scale.x, 0, 0, 0},
+                {0, scale.y, 0, 0},
+                {0, 0, scale.z, 0},
+                {0, 0, 0, 1}};
 }
 
 inline Mat4 Mat4::CreateRotationMatrix(const Vec3& rotation)
@@ -133,7 +146,10 @@ inline Mat4 Mat4::CreateXRotationMatrix(const float angle)
     float const c = cosf(angle);
     float const s = sinf(angle);
 
-    return Mat4{{1, 0, 0, 0}, {0, c, s, 0}, {0, -s, c, 0}, {0, 0, 0, 1}};
+    return Mat4{{1, 0, 0, 0},
+                {0, c, -s, 0},
+                {0, s, c, 0},
+                {0, 0, 0, 1}};
 }
 
 inline Mat4 Mat4::CreateYRotationMatrix(const float angle)
@@ -141,7 +157,10 @@ inline Mat4 Mat4::CreateYRotationMatrix(const float angle)
     float const c = cosf(angle);
     float const s = sinf(angle);
 
-    return Mat4{{c, 0, -s, 0}, {0, 1, 0, 0}, {s, 0, c, 0}, {0, 0, 0, 1}};
+    return Mat4{{c, 0, s, 0},
+                {0, 1, 0, 0},
+                {-s, 0, c, 0},
+                {0, 0, 0, 1}};
 }
 
 inline Mat4 Mat4::CreateZRotationMatrix(const float angle)
@@ -149,12 +168,26 @@ inline Mat4 Mat4::CreateZRotationMatrix(const float angle)
     float const c = cosf(angle);
     float const s = sinf(angle);
 
-    return Mat4{{c, s, 0, 0}, {-s, c, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
+    return Mat4{{c, -s, 0, 0},
+                {s, c, 0, 0},
+                {0, 0, 1, 0},
+                {0, 0, 0, 1}};
 }
 
 inline Mat4 Mat4::CreateTransformMatrix(const Vec3& position, const Vec3& rotation, const Vec3& scale)
 {
     return CreateTranslationMatrix(position) * CreateRotationMatrix(rotation) * CreateScaleMatrix(scale);
+}
+inline Mat4 Mat4::Transpose(const Mat4& matrix)
+{
+    Mat4 transpose{};
+        for(int n = 0; n<16; n++)
+        {
+            int i = n / 4;
+            int j = n % 4;
+            transpose.values[n] = matrix.values[4*j + i];
+        }
+    return transpose;
 }
 
 inline Vec3 Mat4::TransformPoint(const Vec3& vector) const

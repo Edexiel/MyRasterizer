@@ -52,9 +52,7 @@ private:
 
     void DrawLine(const std::array<Vertex,2>& vertices, const Mat4& transformation);
 
-    void RasterLine(const Vertex* vertex);
-
-    // void DrawPoint(Vertex v1, Mat4& transfo);
+    void RasterLine(const std::array<Vertex, 2>& vertices)const;
 
     void SetPixelColor(uint x, uint y, float z, const Color& c) const;
 };
