@@ -13,7 +13,7 @@ public:
     Entity();
     explicit Entity(const std::shared_ptr<Mesh>& mesh);
 
-    static void Update(double deltaTime);
+    void Update(float deltaTime);
     void Transform();
 
     void ResetTransformation();

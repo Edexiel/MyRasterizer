@@ -8,8 +8,7 @@
 
 Scene::Scene(const InputManager& inputManager, const Camera& camera)
     : m_camera{camera},
-      m_im{inputManager},
-      m_light{Vec3{1.f, 0.f, 0.f}, Colorf{1.f, 1.f, 1.f, 1.f}, 1.f, 0.4f, 0.4f, 20.f}
+      m_im{inputManager}
 {
     // SCENE ENTITIES
     // Entity sphere{Mesh::CreateSphere(8, 16)};
@@ -19,17 +18,22 @@ Scene::Scene(const InputManager& inputManager, const Camera& camera)
 
     // entities.push_back(cube);
 
-    Entity sphere{Mesh::CreateSphere(16, 32, Color{255, 0, 0, 255})};
+    Light mainLight {
+        Vec3{2.f, 2.f, 2.f},
+        Colorf{1.f, 1.f, 1.f, 1.f},
+        1.f, 0.4f, 0.4f, 20.f};
+
+    Entity sphere{Mesh::CreateSphere(16, 16, Color{255, 0, 0, 255})};
     sphere.SetPosition({-1.f, 0.f, 1.5f});
     sphere.SetScale({.25f, .25f, .25f});
 
-    Entity sphere2{Mesh::CreateSphere(3, 3, Color{200, 125, 125, 255})};
+    Entity sphere2{Mesh::CreateSphere(2, 4, Color{20, 200, 20, 255})};
     sphere2.SetPosition({.5f, 0.f, 1.5f});
-    sphere2.SetScale({.25f, .25f, .25f});
+    sphere2.SetScale({.25f, .5f, .25f});
 
     Entity triangle{Mesh::CreateTriangle()};
     triangle.SetPosition({0.f, 0.f, 1.5f});
-    triangle.SetScale({1.f, 1.f, 1.f});
+    triangle.SetScale({2.f, 2.f, 2.f});
     // triangle.rotation = Vec3{0.f, 1.f, 0.f};
     // triangle.SetDrawMode(TRIANGLE);
 
@@ -39,10 +43,11 @@ Scene::Scene(const InputManager& inputManager, const Camera& camera)
 
     // Entity cubeTexture{Mesh::CreateCube("Assets/crate.png")};
     Entity cube{Mesh::CreateCube(Color{255, 255, 255, 255})};
-    cube.SetPosition({1.f, 0.f, 1.5f});
+    cube.SetPosition({0.f, 0.f, 1.5f});
     cube.SetScale({0.5f, 0.5f, 0.5f});
     cube.SetRotation({2.f, 0.2f, 0.f});
 
+    m_lights.push_back(mainLight);
     // entities.push_back(teapot);
     m_entities.push_back(cube);
     m_entities.push_back(sphere);
@@ -53,18 +58,23 @@ Scene::Scene(const InputManager& inputManager, const Camera& camera)
 
 Scene::~Scene() = default;
 
-void Scene::Update(float /*deltaTime*/)
+std::vector<Light>& Scene::GetLights()
+{
+    return m_lights;
+}
+
+std::vector<Entity>& Scene::GetEntities()
+{
+    return m_entities;
+}
+
+void Scene::Update(float deltaTime)
 {
     for (Entity& entity : m_entities)
     {
-        // entity.update(deltaTime);
+        entity.Update(deltaTime);
         entity.Transform();
     }
-}
-
-Light& Scene::GetLight()
-{
-    return m_light;
 }
 
 const Camera& Scene::GetCamera() const

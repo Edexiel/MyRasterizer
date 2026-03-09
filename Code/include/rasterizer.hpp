@@ -25,8 +25,8 @@ public:
 
     void RenderScene(Scene& scene);
 
-    void ClearColorBuffer() const;
-    void ClearDepthBuffer() const;
+    void ClearColorBuffer();
+    void ClearDepthBuffer();
 
 private:
     uint m_width{};

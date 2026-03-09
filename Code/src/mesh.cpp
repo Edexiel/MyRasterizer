@@ -196,8 +196,8 @@ std::shared_ptr<Mesh> Mesh::CreateTriangle()
 {
     std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 
-    const Vertex v1{{0.5, -0.5, 0}, {0, 255, 0, 255}};
-    const Vertex v2{{0, 0.5, 0}, {255, 0, 0, 255}};
+    const Vertex v1{{0, 0.5, 0}, {255, 0, 0, 255}};
+    const Vertex v2{{0.5, -0.5, 0}, {0, 255, 0, 255}};
     const Vertex v3{{-0.5, -0.5, 0}, {0, 0, 255, 255}};
 
     mesh->vertices.push_back(v1);

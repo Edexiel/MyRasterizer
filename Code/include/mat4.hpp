@@ -138,7 +138,7 @@ inline Mat4 Mat4::CreateScaleMatrix(const Vec3& scale)
 
 inline Mat4 Mat4::CreateRotationMatrix(const Vec3& rotation)
 {
-    return CreateXRotationMatrix(rotation.x) * CreateYRotationMatrix(rotation.y) * CreateZRotationMatrix(rotation.z);
+    return CreateYRotationMatrix(rotation.y) *CreateXRotationMatrix(rotation.x) *  CreateZRotationMatrix(rotation.z);
 }
 
 inline Mat4 Mat4::CreateXRotationMatrix(const float angle)

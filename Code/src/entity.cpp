@@ -41,9 +41,11 @@ Entity::Entity(const std::shared_ptr<Mesh>& mesh)
 // {
 // }
 
-void Entity::Update(const double deltaTime)
+void Entity::Update(const float deltaTime)
 {
-    (void) deltaTime;
+
+    m_rotation.y = fmodf(m_rotation.y + (deltaTime * 1.f), 360.f);
+    m_rotation.x = fmodf(m_rotation.y + (deltaTime * 0.1f), 360.f);
 }
 
 void Entity::Transform()
@@ -54,11 +56,6 @@ void Entity::Transform()
 void Entity::ResetTransformation()
 {
     m_transform = Mat4::Identity();
-    // memset(&_transform, 0, 16 * sizeof(float));
-    // _transform.a[0] = 1.f;
-    // _transform.a[5] = 1.f;
-    // _transform.a[10] = 1.f;
-    // _transform.a[15] = 1.f;
 }
 
 void Entity::SetDrawMode(E_DRAW_MODE drawMode)

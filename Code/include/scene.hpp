@@ -13,9 +13,9 @@ public:
     Scene(const InputManager& inputManager, const Camera& camera);
     ~Scene();
 
-    std::vector<Entity> m_entities;
 
-    Light& GetLight();
+    std::vector<Light>& GetLights();
+    std::vector<Entity>& GetEntities();
 
     const Camera& GetCamera() const;
     void Update(float deltaTime);
@@ -23,5 +23,6 @@ private:
     const Camera& m_camera;
     const InputManager& m_im;
 
-    Light m_light;
+    std::vector<Entity> m_entities;
+    std::vector<Light> m_lights;
 };

@@ -5,15 +5,7 @@
 template <typename T>
 struct t_Color
 {
-    union
-    {
-        struct
-        {
-            T r, g, b, a;
-        };
-
-        T m_e[4];
-    };
+    T r, g, b, a;
 };
 
 #define Color t_Color<unsigned char>

@@ -30,7 +30,6 @@ Rasterizer::Rasterizer(uint width, uint height)
     m_color_buffer = SDL_CreateRGBSurfaceWithFormat(0, (int) width, (int) height, 32, SDL_PIXELFORMAT_RGBA32);
     SDL_SetSurfaceBlendMode(m_color_buffer, SDL_BLENDMODE_NONE);
 
-
     // Initialize buffers
     ClearColorBuffer();
     ClearDepthBuffer();
@@ -63,10 +62,10 @@ void Rasterizer::RenderScene(Scene& scene)
     ClearColorBuffer();
     ClearDepthBuffer();
 
-    std::array<Vertex,2> vertices{Vertex{{1,1,1},Color{255, 0, 0}},Vertex{{256,256,257},Color{255, 0, 0}}};
-    DrawLine(vertices,viewport);
+    const std::array<Vertex, 2> vertices{Vertex{{1, 1, 1},Color{255, 0, 0}}, Vertex{{256, 256, 257},Color{255, 0, 0}}};
+    DrawLine(vertices, viewport);
 
-    for (Entity& entity : scene.m_entities)
+    for (Entity& entity : scene.GetEntities())
     {
         switch (entity.GetDrawMode())
         {
@@ -85,7 +84,7 @@ void Rasterizer::RenderScene(Scene& scene)
 
                     if (entity.GetMesh()->uv.empty() || entity.GetMesh()->texture.IsEmpty())
                     {
-                        DrawTriangle(triangle, entity.GetTransform(), scene.GetLight());
+                        DrawTriangle(triangle, entity.GetTransform(), scene.GetLights()[0]);
                     }
                     else
                     {
@@ -93,7 +92,7 @@ void Rasterizer::RenderScene(Scene& scene)
                                                       entity.GetMesh()->uv[i + 1],
                                                       entity.GetMesh()->uv[i + 2]};
 
-                        DrawTriangle(triangle, entity.GetTransform(), scene.GetLight(), &uv, &entity.GetMesh()->texture);
+                        DrawTriangle(triangle, entity.GetTransform(), scene.GetLights()[0], &uv, &entity.GetMesh()->texture);
                     }
                 }
 
@@ -150,13 +149,13 @@ inline void Rasterizer::DrawTriangle(const std::array<Vertex, 3>& vertices,
         clipCoord[i] = projection * transformCoordinates[i];
     }
 
-    // clipping
-    if ((clipCoord[0].x < -clipCoord[0].w || clipCoord[0].x > clipCoord[0].w || clipCoord[0].y < -clipCoord[0].w ||
-         clipCoord[0].y > clipCoord[0].w || clipCoord[0].z < -clipCoord[0].w || clipCoord[0].z > clipCoord[0].w) &&
-        (clipCoord[1].x < -clipCoord[1].w || clipCoord[1].x > clipCoord[1].w || clipCoord[1].y < -clipCoord[1].w ||
-         clipCoord[1].y > clipCoord[1].w || clipCoord[1].z < -clipCoord[1].w || clipCoord[1].z > clipCoord[1].w) &&
-        (clipCoord[2].x < -clipCoord[2].w || clipCoord[2].x > clipCoord[2].w || clipCoord[2].y < -clipCoord[2].w ||
-         clipCoord[2].y > clipCoord[2].w || clipCoord[2].z < -clipCoord[2].w || clipCoord[2].z > clipCoord[2].w))
+    // Clipping — cull only if all 3 vertices are outside the SAME frustum plane
+    if ((clipCoord[0].x < -clipCoord[0].w && clipCoord[1].x < -clipCoord[1].w && clipCoord[2].x < -clipCoord[2].w) || // left
+        (clipCoord[0].x >  clipCoord[0].w && clipCoord[1].x >  clipCoord[1].w && clipCoord[2].x >  clipCoord[2].w) || // right
+        (clipCoord[0].y < -clipCoord[0].w && clipCoord[1].y < -clipCoord[1].w && clipCoord[2].y < -clipCoord[2].w) || // bottom
+        (clipCoord[0].y >  clipCoord[0].w && clipCoord[1].y >  clipCoord[1].w && clipCoord[2].y >  clipCoord[2].w) || // top
+        (clipCoord[0].z < -clipCoord[0].w && clipCoord[1].z < -clipCoord[1].w && clipCoord[2].z < -clipCoord[2].w) || // near
+        (clipCoord[0].z >  clipCoord[0].w && clipCoord[1].z >  clipCoord[1].w && clipCoord[2].z >  clipCoord[2].w))   // far
     {
         return;
     }
@@ -168,7 +167,7 @@ inline void Rasterizer::DrawTriangle(const std::array<Vertex, 3>& vertices,
     }
 
     // back face culling
-    if (Vec3::CrossProductZ(ndc[1] - ndc[0], ndc[2] - ndc[0]) <= 0.f)
+    if (Vec3::CrossProductZ(ndc[2] - ndc[0], ndc[1] - ndc[0]) <= 0.f)
     {
         return;
     }
@@ -179,11 +178,11 @@ inline void Rasterizer::DrawTriangle(const std::array<Vertex, 3>& vertices,
         screenCoord[i] = Vertex{viewport.TransformPoint(ndc[i]), vertices[i].color, vertices[i].normal};
     }
 
-    Light const correctedLight{light};
+    // Light const correctedLight{light};
     // corrected_light.Correct(view);
     // corrected_light.SetPosition(Vec3{0.f, 0.f, 0.f});
 
-    RasterTriangle(screenCoord, transformCoordinates, clipCoord, transformNormals, correctedLight, uv, texture);
+    RasterTriangle(screenCoord, transformCoordinates, clipCoord, transformNormals, light, uv, texture);
 }
 
 /**
@@ -201,7 +200,7 @@ inline void Rasterizer::RasterTriangle(const std::array<Vertex, 3>& vertices,
                                        const std::array<Vec4, 3>& tVertices,
                                        const std::array<Vec4, 3>& pVertices,
                                        const std::array<Vec4, 3>& tNormals,
-                                       const Light& /*light*/,
+                                       const Light& light,
                                        const std::array<Vec2f, 3>* uv,
                                        const Texture* texture)
 {
@@ -224,7 +223,7 @@ inline void Rasterizer::RasterTriangle(const std::array<Vertex, 3>& vertices,
     {
         for (int x = xMin; x <= xMax; ++x)
         {
-            const Vec3 q{(float)x - v0.position.x, (float)y - v0.position.y, 0};
+            const Vec3 q{(float) x - v0.position.x, (float) y - v0.position.y, 0};
             // const Vec3 q{x - v1.position.x, y - v1.position.y, 0};
 
             weight.y = Vec3::CrossProductZ(q, vec2) / Vec3::CrossProductZ(vec1, vec2);
@@ -236,10 +235,10 @@ inline void Rasterizer::RasterTriangle(const std::array<Vertex, 3>& vertices,
 
                 const float z = Vec3::DotProduct({v0.position.z, v1.position.z, v2.position.z}, weight);
 
-                // if (z > depth_buffer[x + y * width])
-                // {
-                //     continue;
-                // }
+                if (z > m_depth_buffer[x + y * m_width])
+                {
+                    continue;
+                }
 
                 weight.x /= pVertices[0].w;
                 weight.y /= pVertices[1].w;
@@ -271,7 +270,8 @@ inline void Rasterizer::RasterTriangle(const std::array<Vertex, 3>& vertices,
                     tColor = texture->Accessor(cUV.x, cUV.y);
                 }
 
-                // light.apply_light(t_pos, t_normal, t_color);
+
+                // light.Apply(tPos, tNormal, cam.pos,tColor);
                 SetPixelColor(x, y, z, tColor);
 
 #if 0 // Cheap wireframe
@@ -308,9 +308,9 @@ inline void Rasterizer::DrawLine(const std::array<Vertex, 2>& vertices, const Ma
 
     // clipping
     if ((clipCoord[0].x < -clipCoord[0].w || clipCoord[0].x > clipCoord[0].w || clipCoord[0].y < -clipCoord[0].w ||
-            clipCoord[0].y > clipCoord[0].w || clipCoord[0].z < -clipCoord[0].w || clipCoord[0].z > clipCoord[0].w) &&
+         clipCoord[0].y > clipCoord[0].w || clipCoord[0].z < -clipCoord[0].w || clipCoord[0].z > clipCoord[0].w) &&
         (clipCoord[1].x < -clipCoord[1].w || clipCoord[1].x > clipCoord[1].w || clipCoord[1].y < -clipCoord[1].w ||
-            clipCoord[1].y > clipCoord[1].w || clipCoord[1].z < -clipCoord[1].w || clipCoord[1].z > clipCoord[1].w))
+         clipCoord[1].y > clipCoord[1].w || clipCoord[1].z < -clipCoord[1].w || clipCoord[1].z > clipCoord[1].w))
     {
         return;
     }
@@ -327,7 +327,7 @@ inline void Rasterizer::DrawLine(const std::array<Vertex, 2>& vertices, const Ma
     //     return;
     // }
 
-    std::array<Vertex,2> screenCoord;
+    std::array<Vertex, 2> screenCoord;
     for (int i = 0; i < 2; i++)
     {
         screenCoord[i] = Vertex{viewport.TransformPoint(ndc[i]), vertices[i].color, vertices[i].normal};
@@ -335,7 +335,7 @@ inline void Rasterizer::DrawLine(const std::array<Vertex, 2>& vertices, const Ma
     RasterLine(screenCoord);
 }
 
-inline void Rasterizer::RasterLine(const std::array<Vertex, 2>& vertices)const
+inline void Rasterizer::RasterLine(const std::array<Vertex, 2>& vertices) const
 {
     Vertex v1 = vertices[0];
     Vertex v2 = vertices[1];
@@ -383,15 +383,15 @@ inline void Rasterizer::RasterLine(const std::array<Vertex, 2>& vertices)const
     }
 }
 
-void Rasterizer::ClearColorBuffer() const
+void Rasterizer::ClearColorBuffer()
 {
     static const Color gray{150, 150, 150, 255};
     std::fill_n((Color*) m_color_buffer->pixels, m_width * m_height, gray);
 }
 
-inline void Rasterizer::ClearDepthBuffer() const
+inline void Rasterizer::ClearDepthBuffer()
 {
-    std::fill_n(m_depth_buffer, m_width * m_height, FLT_MAX);
+    std::fill_n(m_depth_buffer, m_width * m_height, 1);
 }
 
 inline void Rasterizer::SetPixelColor(uint x, uint y, float z, const Color& c) const
@@ -399,7 +399,6 @@ inline void Rasterizer::SetPixelColor(uint x, uint y, float z, const Color& c) c
     const uint index = x + (y * m_width);
 
     ((Color*) m_color_buffer->pixels)[index] = c;
-    // colorBuffer[index] = c;
     m_depth_buffer[index] = z;
 }
 
