@@ -5,12 +5,15 @@
 #include "color.hpp"
 #include "vec2.hpp"
 
-#define STB_IMAGE_IMPLEMENTATION
+#include <SDL2/SDL_image.h>
 
 
 Texture::~Texture()
 {
-    delete[] m_texture;
+    if (m_texture != nullptr)
+    {
+        delete[] m_texture;
+    }
 }
 
 Vec2<uint> Texture::GetSize() const
@@ -26,23 +29,6 @@ uint Texture::GetWidth() const
 uint Texture::GetHeight() const
 {
     return m_height;
-}
-
-bool Texture::Load_PNG(const char* /*filename*/)
-{
-    // stbi_set_flip_vertically_on_load(true);
-    // int channels;
-    // _texture = (Color*)stbi_load(filename, &_width, &_height, &channels, 3);
-
-    // texture = new Color[width * height];
-
-    // for (int i = 0; i < width * height; i++)
-    //     texture[i] = _texture[i];
-
-    // memcpy(texture, _texture, width * height * sizeof(Color));
-
-    // stbi_image_free(_texture);
-    return m_texture != nullptr;
 }
 
 inline Color* Texture::GetTexture() const
@@ -68,4 +54,21 @@ Color Texture::Accessor(float v, float u) const
     u *= m_height;
 
     return m_texture[(int) v + ((int) u * m_width)];
+}
+
+bool Texture::Load_Image(const char* filename)
+{
+    SDL_Surface * surface = IMG_Load(filename);
+    SDL_Surface *rgba = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGBA32, 0);
+
+    uint32_t *pixels = (uint32_t*)rgba->pixels;
+
+    m_texture = new Color[rgba->w * rgba->h];
+
+    memcpy(m_texture, pixels, rgba->pitch * rgba->w * rgba->h);
+
+    SDL_FreeSurface(surface);
+    SDL_FreeSurface(rgba);
+
+return true;
 }

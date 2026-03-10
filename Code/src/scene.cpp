@@ -41,15 +41,15 @@ Scene::Scene(const InputManager& inputManager, const Camera& camera)
     // teapot.SetPosition({0.f,-2.f,-1.f});
     // teapot.SetScale({0.1f,0.1f,0.1f});
 
-    // Entity cubeTexture{Mesh::CreateCube("Assets/crate.png")};
-    Entity cube{Mesh::CreateCube(Color{255, 255, 255, 255})};
-    cube.SetPosition({0.f, 0.f, 1.5f});
-    cube.SetScale({0.5f, 0.5f, 0.5f});
-    cube.SetRotation({2.f, 0.2f, 0.f});
+    Entity cubeTexture{Mesh::CreateTexCube("Assets/crate.png")};
+    // Entity cube{Mesh::CreateCube(Color{255, 255, 255, 255})};
+    cubeTexture.SetPosition({0.f, 0.f, 1.5f});
+    cubeTexture.SetScale({0.5f, 0.5f, 0.5f});
+    cubeTexture.SetRotation({2.f, 0.2f, 0.f});
 
     m_lights.push_back(mainLight);
     // entities.push_back(teapot);
-    m_entities.push_back(cube);
+    m_entities.push_back(cubeTexture);
     m_entities.push_back(sphere);
     m_entities.push_back(sphere2);
     m_entities.push_back(triangle);

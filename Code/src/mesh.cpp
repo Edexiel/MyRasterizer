@@ -11,7 +11,7 @@
 // #define TINYOBJLOADER_IMPLEMENTATION
 // #include "tiny_obj_loader.h"
 
-std::shared_ptr<Mesh> Mesh::CreateTexCube(const std::string& filename, const Color& color)
+std::shared_ptr<Mesh> Mesh::CreateTexCube(const std::string& filename,const t_Color<unsigned char>& color)
 {
     const Vec2f topLeft{0, 0};
     const Vec2f topRight{1, 0};
@@ -20,7 +20,7 @@ std::shared_ptr<Mesh> Mesh::CreateTexCube(const std::string& filename, const Col
 
     std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 
-    mesh->texture.Load_PNG(filename.c_str());
+    mesh->texture.Load_Image(filename.c_str());
 
     mesh->vertices.push_back(Vertex{{-0.5, -0.5, 0.5}, color});
     mesh->vertices.push_back(Vertex{{0.5, -0.5, 0.5}, color});

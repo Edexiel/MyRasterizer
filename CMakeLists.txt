@@ -8,19 +8,19 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Find SDL2
-find_package(SDL2 REQUIRED)
+find_package(SDL2 REQUIRED CONFIG)
+find_package(SDL2_IMAGE REQUIRED CONFIG)
 
 # Find all code files
 file(GLOB_RECURSE RASTERIZER_HEADERS "Code/include/*.hpp" "Code/include/*.h")
 file(GLOB_RECURSE RASTERIZER_SOURCES "Code/src/*.cpp")
 
 # Add files to compilation
-add_executable(Rasterizer ${RASTERIZER_HEADERS} ${RASTERIZER_SOURCES})
+add_executable(${PROJECT_NAME} ${RASTERIZER_HEADERS} ${RASTERIZER_SOURCES})
 
 # Add include directory
-target_include_directories(Rasterizer PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/Code/include" "${SDL2_INCLUDE_DIRS}")
+target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/Code/include")
 
-# Include and link dependencies
+# Link dependencies
 # SDL2
-target_include_directories(${PROJECT_NAME} PRIVATE ${SDL2_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} PRIVATE ${SDL2_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} PRIVATE  SDL2::SDL2 SDL2_image::SDL2_image)

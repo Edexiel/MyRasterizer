@@ -37,7 +37,7 @@ void Light::Correct(const Mat4& view)
 
 inline float Light::Diffuse(const Vec3& normal, const Vec3& lightDirection) const
 {
-    const float diffuseTerm = clamp(Vec3::DotProduct(lightDirection, normal), 0.F, 1.F);
+    const float diffuseTerm = clamp(Vec3::DotProduct(lightDirection, normal), 0.f, 1.f);
 
     return m_diffuse_intensity * diffuseTerm; // mat_reflectance
 }
@@ -56,7 +56,6 @@ inline float Light::Specular(const Vec3& normal, const Vec3& lightDirection, con
 
 void Light::Apply(const Vec3& position, const Vec3& normal, const Vec3& cameraPosition, Color& outColor) const
 {
-    // Vec3 light_pos{0, 0, 0};
     const Vec3 vLight = Vec3::Normalize(m_light_position - position);
     const Vec3 vCamera = Vec3::Normalize(cameraPosition - position);
     const Vec3 vNormal = Vec3::Normalize(normal);

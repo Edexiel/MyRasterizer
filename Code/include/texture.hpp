@@ -25,7 +25,7 @@ public:
     Color operator [] (int index) const {return m_texture[index];}
     Color& operator [] (int index) {return m_texture[index];}
 
-    bool Load_PNG(const char* filename);
+    bool Load_Image(const char* filename);
 
 private:
     uint m_width{0};

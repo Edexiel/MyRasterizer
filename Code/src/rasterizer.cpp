@@ -185,17 +185,7 @@ inline void Rasterizer::DrawTriangle(const std::array<Vertex, 3>& vertices,
     RasterTriangle(screenCoord, transformCoordinates, clipCoord, transformNormals, light, uv, texture);
 }
 
-/**
- * @brief Rasterization function of the program
- *
- * @param vertices      pointer- screen-tranformed vertices
- * @param t_vertices    pointer- object matrix only tranformed vertices
- * @param p_vertices    pointer- non homogeneous vertices
- * @param t_normals     pointer- object matrix only transformed normals
- * @param light         Reference- light source to use
- * @param UV            Pointer- UV of texture if any (can be nullptr)
- * @param texture       Pointer- texture if any (can be nullptr)
- */
+
 inline void Rasterizer::RasterTriangle(const std::array<Vertex, 3>& vertices,
                                        const std::array<Vec4, 3>& tVertices,
                                        const std::array<Vec4, 3>& pVertices,
@@ -224,7 +214,6 @@ inline void Rasterizer::RasterTriangle(const std::array<Vertex, 3>& vertices,
         for (int x = xMin; x <= xMax; ++x)
         {
             const Vec3 q{(float) x - v0.position.x, (float) y - v0.position.y, 0};
-            // const Vec3 q{x - v1.position.x, y - v1.position.y, 0};
 
             weight.y = Vec3::CrossProductZ(q, vec2) / Vec3::CrossProductZ(vec1, vec2);
             weight.z = Vec3::CrossProductZ(vec1, q) / Vec3::CrossProductZ(vec1, vec2);
@@ -321,12 +310,6 @@ inline void Rasterizer::DrawLine(const std::array<Vertex, 2>& vertices, const Ma
         ndc[i] = Vec4::Homogenize(clipCoord[i]);
     }
 
-    // // back face culling
-    // if (Vec3::CrossProductZ(ndc[1], ndc[0]) <= 0.f)
-    // {
-    //     return;
-    // }
-
     std::array<Vertex, 2> screenCoord;
     for (int i = 0; i < 2; i++)
     {
@@ -401,11 +384,3 @@ inline void Rasterizer::SetPixelColor(uint x, uint y, float z, const Color& c) c
     ((Color*) m_color_buffer->pixels)[index] = c;
     m_depth_buffer[index] = z;
 }
-
-// void Rasterizer::draw_point(Vertex v, Mat4 &transformation)
-// {
-//     Mat4 mat_finale = viewport * projection * transformation;
-//     v.position = (mat_finale * Vec4{v.position, 1}).xyz;
-//     // viewport
-//     set_pixel_color((uint)v.position.x, (uint)v.position.y, 0, v.color);
-// }
