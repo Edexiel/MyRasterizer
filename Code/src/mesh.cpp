@@ -11,7 +11,7 @@
 // #define TINYOBJLOADER_IMPLEMENTATION
 // #include "tiny_obj_loader.h"
 
-std::shared_ptr<Mesh> Mesh::CreateTexCube(const std::string& filename,const t_Color<unsigned char>& color)
+std::shared_ptr<Mesh> Mesh::CreateTexCube(const std::string& filename,const Color& color)
 {
     const Vec2f topLeft{0, 0};
     const Vec2f topRight{1, 0};
@@ -196,9 +196,9 @@ std::shared_ptr<Mesh> Mesh::CreateTriangle()
 {
     std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 
-    const Vertex v1{{0, 0.5, 0}, {255, 0, 0, 255}};
-    const Vertex v2{{0.5, -0.5, 0}, {0, 255, 0, 255}};
-    const Vertex v3{{-0.5, -0.5, 0}, {0, 0, 255, 255}};
+    const Vertex v1{{0, 0.5, 0}, Colors::Red};
+    const Vertex v2{{0.5, -0.5, 0}, Colors::Green};
+    const Vertex v3{{-0.5, -0.5, 0}, Colors::Blue};
 
     mesh->vertices.push_back(v1);
     mesh->vertices.push_back(v2);
@@ -216,7 +216,7 @@ std::shared_ptr<Mesh> Mesh::CreateTriangle()
     return mesh;
 }
 
-std::shared_ptr<Mesh> Mesh::CreateSphere(int latitudeCount, int longitudeCount, Color color)
+std::shared_ptr<Mesh> Mesh::CreateSphere(int latitudeCount, int longitudeCount, const Color& color)
 {
     std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 
@@ -259,8 +259,8 @@ std::shared_ptr<Mesh> Mesh::CreateSphere(int latitudeCount, int longitudeCount, 
 std::shared_ptr<Mesh> Mesh::CreateVectorLight(float x, float y, float z)
 {
     std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
-    mesh->vertices.push_back(Vertex{{x, y, z}, {255, 0, 0}});
-    mesh->vertices.push_back(Vertex{{0, 0, 0}, {0, 0, 0}});
+    mesh->vertices.push_back(Vertex{{x, y, z}, Colors::Red});
+    mesh->vertices.push_back(Vertex{{0, 0, 0}, Colors::Black});
     mesh->indices.push_back(0);
     mesh->indices.push_back(1);
 

@@ -9,13 +9,16 @@
 #include "vec4.hpp"
 
 Light::Light(const Vec3& position,
-             const Colorf& lightColor,
+             const Color& lightColor,
              float ambientIntensity,
              float diffuseIntensity,
              float specularIntensity,
              float shininess)
-    : m_ambient_intensity{ambientIntensity}, m_diffuse_intensity{diffuseIntensity},
-      m_specular_intensity{specularIntensity}, m_shininess{shininess}, m_light_position{position},
+    : m_ambient_intensity{ambientIntensity},
+      m_diffuse_intensity{diffuseIntensity},
+      m_specular_intensity{specularIntensity},
+      m_shininess{shininess},
+      m_light_position{position},
       m_light_color{lightColor}
 {
 }
@@ -44,7 +47,7 @@ inline float Light::Diffuse(const Vec3& normal, const Vec3& lightDirection) cons
 
 inline float Light::Specular(const Vec3& normal, const Vec3& lightDirection, const Vec3& cameraDirection) const
 {
-    float specularTerm{0};
+    float specularTerm = 0;
 
     if (Vec3::DotProduct(normal, lightDirection) > 0)
     {

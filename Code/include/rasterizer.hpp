@@ -14,7 +14,7 @@
 class Rasterizer
 {
 public:
-    Rasterizer(uint width, uint height);
+    Rasterizer(int width, int height);
     ~Rasterizer();
     SDL_Surface* GetColorBuffer() const;
 
@@ -29,8 +29,8 @@ public:
     void ClearDepthBuffer();
 
 private:
-    uint m_width{};
-    uint m_height{};
+    int m_width;
+    int m_height;
 
     float* m_depth_buffer;
 

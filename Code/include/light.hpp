@@ -12,7 +12,7 @@ class Light
 public:
     Light() = delete;
     Light(const Vec3& position,
-          const Colorf& lightColor,
+          const Color& lightColor,
           float ambientIntensity,
           float diffuseIntensity,
           float specularIntensity,
@@ -33,5 +33,5 @@ private:
     float m_shininess;
 
     Vec3 m_light_position;
-    Colorf m_light_color;
+    Color m_light_color;
 };

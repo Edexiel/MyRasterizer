@@ -28,9 +28,9 @@ public:
     Texture texture;
 
     static std::shared_ptr<Mesh> CreateTriangle();
-    static std::shared_ptr<Mesh> CreateTexCube(const std::string& filename, const t_Color<unsigned char>& color = {255, 255, 255});
-    static std::shared_ptr<Mesh> CreateCube(const t_Color<unsigned char>& color);
-    static std::shared_ptr<Mesh> CreateSphere(int latitudeCount, int longitudeCount, Color = {255, 255, 255});
+    static std::shared_ptr<Mesh> CreateTexCube(const std::string& filename, const Color& color = Colors::White);
+    static std::shared_ptr<Mesh> CreateCube(const Color& color);
+    static std::shared_ptr<Mesh> CreateSphere(int latitudeCount, int longitudeCount, const Color& color = Colors::White);
     static std::shared_ptr<Mesh> CreateVectorLight(float x, float y, float z);
-    // static std::shared_ptr<Mesh> LoadObj(std::string& filename);
+    static std::shared_ptr<Mesh> LoadObj(std::string& filename);
 };

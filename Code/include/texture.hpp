@@ -20,7 +20,7 @@ public:
 
     bool IsEmpty() const;
 
-    Color Accessor(float v, float u) const;
+    Color Get(float v, float u) const;
 
     Color operator [] (int index) const {return m_texture[index];}
     Color& operator [] (int index) {return m_texture[index];}

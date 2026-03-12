@@ -20,10 +20,10 @@ Scene::Scene(const InputManager& inputManager, const Camera& camera)
 
     Light mainLight {
         Vec3{2.f, 2.f, 2.f},
-        Colorf{1.f, 1.f, 1.f, 1.f},
+        Colors::White,
         1.f, 0.4f, 0.4f, 20.f};
 
-    Entity sphere{Mesh::CreateSphere(16, 16, Color{255, 0, 0, 255})};
+    Entity sphere{Mesh::CreateSphere(16, 16, Colors::Red)};
     sphere.SetPosition({-1.f, 0.f, 1.5f});
     sphere.SetScale({.25f, .25f, .25f});
 
